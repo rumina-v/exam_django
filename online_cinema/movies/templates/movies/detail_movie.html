@@ -20,7 +20,6 @@
 
 <hr>
 
-<!-- Отзывы -->
 <h3>Отзывы</h3>
 {% for review in reviews %}
 <div class="card mb-3">
@@ -35,7 +34,6 @@
 <p>Пока нет отзывов.</p>
 {% endfor %}
 
-<!-- Форма добавления отзыва -->
 {% if user.is_authenticated %}
 <h4>Оставить отзыв</h4>
 <form method="post" action="{% url 'reviews:add_review' movie.id %}">
