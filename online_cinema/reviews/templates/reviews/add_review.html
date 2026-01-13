@@ -1,0 +1,15 @@
+{% extends 'movies/base.html' %}
+
+{% block title %}Оставить отзыв к {{ movie.title }}{% endblock %}
+
+{% block content %}
+<h2>Оставить отзыв к "{{ movie.title }}"</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Отправить</button>
+</form>
+
+<a href="{% url 'movies:detail_movie' movie.id %}" class="btn btn-secondary mt-2">Назад к фильму</a>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'movies/base.html' %}
+
+{% block title %}Редактировать подборку{% endblock %}
+
+{% block content %}
+<h2>Редактировать подборку "{{ collection.name }}"</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="id_name" class="form-label">Название</label>
+        {{ form.name }}
+    </div>
+    <div class="mb-3">
+        <label for="id_description" class="form-label">Описание</label>
+        {{ form.description }}
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Выберите фильмы</label>
+        {{ form.movies }}
+    </div>
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+
+<a href="{% url 'collections:list_collections' %}" class="btn btn-secondary mt-2">Назад</a>
+{% endblock %}

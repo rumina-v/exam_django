@@ -1,0 +1,51 @@
+{% extends 'movies/base.html' %}
+
+{% block title %}Фильмы{% endblock %}
+
+{% block content %}
+<h2>Фильмы</h2>
+
+<!-- Форма поиска -->
+<form method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-3">
+            <input type="text" name="title" placeholder="Название" value="{{ request.GET.title }}" class="form-control">
+        </div>
+        <div class="col-md-3">
+            <input type="text" name="director" placeholder="Режиссёр" value="{{ request.GET.director }}" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <input type="text" name="genre" placeholder="Жанр" value="{{ request.GET.genre }}" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <input type="number" name="year" placeholder="Год" value="{{ request.GET.year }}" class="form-control">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Найти</button>
+        </div>
+    </div>
+</form>
+
+<!-- Список фильмов -->
+<div class="row">
+    {% for movie in movies %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            {% if movie.poster %}
+            <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ movie.title }}</h5>
+                <p class="card-text">
+                    Режиссёр: {{ movie.director }}<br>
+                    Жанр: {{ movie.genre }}<br>
+                    Год: {{ movie.year }}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>Фильмы не найдены.</p>
+    {% endfor %}
+</div>
+{% endblock %}

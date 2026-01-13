@@ -1,0 +1,27 @@
+{% extends 'movies/base.html' %}
+
+{% block title %}Мои подборки{% endblock %}
+
+{% block content %}
+<h2>Мои подборки</h2>
+
+<a href="{% url 'collections:create_collection' %}" class="btn btn-primary mb-3">Создать подборку</a>
+
+<div class="row">
+    {% for collection in collections %}
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ collection.name }}</h5>
+                <p class="card-text">{{ collection.description|truncatewords:20 }}</p>
+                <p class="text-muted">Фильмов: {{ collection.movies.count }}</p>
+                <a href="{% url 'collections:edit_collection' collection.id %}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                <a href="{% url 'collections:delete_collection' collection.id %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p>У вас пока нет подборок.</p>
+    {% endfor %}
+</div>
+{% endblock %}
