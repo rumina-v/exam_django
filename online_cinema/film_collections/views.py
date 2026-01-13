@@ -1,43 +1,41 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
 from .models import Collection
 from .forms import CollectionForm
 
-@login_required
-def list_collections(request):
-    collections = Collection.objects.filter(owner=request.user)
-    return render(request, 'film_collections/list_collections.html', {'collections': collections})
+class CollectionListView(LoginRequiredMixin, ListView):
+    model = Collection
+    template_name = 'film_collections/collection_list.html'
+    context_object_name = 'collections'
+    paginate_by = 6
 
-@login_required
-def create_collection(request):
-    if request.method == 'POST':
-        form = CollectionForm(request.POST)
-        if form.is_valid():
-            collection = form.save(commit=False)
-            collection.owner = request.user
-            collection.save()
-            form.save_m2m()  # сохраняем связи ManyToMany
-            return redirect('collections:list_collections')
-    else:
-        form = CollectionForm()
-    return render(request, 'film_collections/create_collection.html', {'form': form})
+    def get_queryset(self):
+        return Collection.objects.filter(owner=self.request.user)
 
-@login_required
-def edit_collection(request, collection_id):
-    collection = get_object_or_404(Collection, id=collection_id, owner=request.user)
-    if request.method == 'POST':
-        form = CollectionForm(request.POST, instance=collection)
-        if form.is_valid():
-            form.save()
-            return redirect('collections:list_collections')
-    else:
-        form = CollectionForm(instance=collection)
-    return render(request, 'film_collections/edit_collection.html', {'form': form, 'collection': collection})
+class CollectionCreateView(LoginRequiredMixin, CreateView):
+    model = Collection
+    form_class = CollectionForm
+    template_name = 'film_collections/collection_form.html'
+    success_url = reverse_lazy('collections:collection_list')
 
-@login_required
-def delete_collection(request, collection_id):
-    collection = get_object_or_404(Collection, id=collection_id, owner=request.user)
-    if request.method == 'POST':
-        collection.delete()
-        return redirect('collections:list_collections')
-    return render(request, 'film_collections/delete_collection.html', {'collection': collection})
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+class CollectionUpdateView(LoginRequiredMixin, UpdateView):
+    model = Collection
+    form_class = CollectionForm
+    template_name = 'film_collections/collection_form.html'
+    success_url = reverse_lazy('collections:collection_list')
+
+    def get_queryset(self):
+        return Collection.objects.filter(owner=self.request.user)
+
+class CollectionDeleteView(LoginRequiredMixin, DeleteView):
+    model = Collection
+    template_name = 'film_collections/collection_confirm_delete.html'
+    success_url = reverse_lazy('collections:collection_list')
+
+    def get_queryset(self):
+        return Collection.objects.filter(owner=self.request.user)

@@ -4,7 +4,8 @@ from . import views
 app_name = 'movies'
 
 urlpatterns = [
-    path('', views.list_movies, name='list_movies'),
-    path('add/', views.add_movie, name='add_movie'),
-    path('<int:movie_id>/', views.detail_movie, name='detail_movie'),
+    path('', views.MovieListView.as_view(), name='movie_list'),
+    path('add/', views.MovieCreateView.as_view(), name='movie_create'),
+    path('edit/<int:pk>/', views.MovieUpdateView.as_view(), name='movie_update'),
+    path('delete/<int:pk>/', views.MovieDeleteView.as_view(), name='movie_delete'),
 ]

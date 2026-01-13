@@ -1,49 +1,55 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
 from .models import Movie
-from .forms import MovieForm
 
-@login_required
-def add_movie(request):
-    if request.method == 'POST':
-        form = MovieForm(request.POST, request.FILES)
-        if form.is_valid():
-            movie = form.save(commit=False)
-            movie.owner = request.user
-            movie.save()
-            return redirect('movies:list_movies')
-    else:
-        form = MovieForm()
-    return render(request, 'movies/add_movie.html', {'form': form})
+class MovieListView(LoginRequiredMixin, ListView):
+    model = Movie
+    template_name = 'movies/movie_list.html'
+    context_object_name = 'movies'
+    paginate_by = 6
 
-def detail_movie(request, movie_id):
-    movie = get_object_or_404(Movie, id=movie_id)
-    reviews = movie.reviews.all().select_related('user').order_by('-created_at')
-    form = None
-    if request.user.is_authenticated:
-        form = ReviewForm()
-    return render(request, 'movies/detail_movie.html', {
-        'movie': movie,
-        'reviews': reviews,
-        'form': form
-    })
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        title = self.request.GET.get('title')
+        director = self.request.GET.get('director')
+        genre = self.request.GET.get('genre')
+        year = self.request.GET.get('year')
 
-def list_movies(request):
-    movies = Movie.objects.all()
+        if title:
+            queryset = queryset.filter(title__icontains=title)
+        if director:
+            queryset = queryset.filter(director__icontains=director)
+        if genre:
+            queryset = queryset.filter(genre__icontains=genre)
+        if year:
+            queryset = queryset.filter(year=year)
 
-    # Фильтрация
-    title = request.GET.get('title')
-    director = request.GET.get('director')
-    genre = request.GET.get('genre')
-    year = request.GET.get('year')
+        return queryset
 
-    if title:
-        movies = movies.filter(title__icontains=title)
-    if director:
-        movies = movies.filter(director__icontains=director)
-    if genre:
-        movies = movies.filter(genre__icontains=genre)
-    if year:
-        movies = movies.filter(year=year)
+class MovieCreateView(LoginRequiredMixin, CreateView):
+    model = Movie
+    template_name = 'movies/movie_form.html'
+    fields = ['title', 'director', 'genre', 'description', 'year', 'poster']
+    success_url = reverse_lazy('movies:movie_list')
 
-    return render(request, 'movies/list_movies.html', {'movies': movies})
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
+
+class MovieUpdateView(LoginRequiredMixin, UpdateView):
+    model = Movie
+    template_name = 'movies/movie_form.html'
+    fields = ['title', 'director', 'genre', 'description', 'year', 'poster']
+    success_url = reverse_lazy('movies:movie_list')
+
+    def get_queryset(self):
+        return Movie.objects.filter(owner=self.request.user)
+
+class MovieDeleteView(LoginRequiredMixin, DeleteView):
+    model = Movie
+    template_name = 'movies/movie_confirm_delete.html'
+    success_url = reverse_lazy('movies:movie_list')
+
+    def get_queryset(self):
+        return Movie.objects.filter(owner=self.request.user)

@@ -1,0 +1,14 @@
+{% extends 'movies/base.html' %}
+
+{% block title %}Удалить подборку{% endblock %}
+
+{% block content %}
+<h2>Удалить "{{ object.name }}"?</h2>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Да, удалить</button>
+</form>
+
+<a href="{% url 'collections:collection_list' %}" class="btn btn-secondary mt-2">Назад</a>
+{% endblock %}

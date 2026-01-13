@@ -1,0 +1,15 @@
+{% extends 'movies/base.html' %}
+
+{% block title %}{% if object %}Редактировать подборку{% else %}Создать подборку{% endif %}{% endblock %}
+
+{% block content %}
+<h2>{% if object %}Редактировать "{{ object.name }}"{% else %}Создать подборку{% endif %}</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+
+<a href="{% url 'collections:collection_list' %}" class="btn btn-secondary mt-2">Назад</a>
+{% endblock %}
